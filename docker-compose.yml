@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./:/srv/pg-shopify-inflector
+    working_dir: /srv/pg-shopify-inflector
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: postgres
+
+volumes:
+  postgres:
+    driver: local

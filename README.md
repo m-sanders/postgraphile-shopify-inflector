@@ -8,7 +8,7 @@ Mutations follow the Shopify style naming conventions. e.g. `createUser` becomes
 `userCreate`.
 
 **Adding this plugin to your schema is almost certainly a breaking change, so do
-it before you ship anything!** This is the primary reason this isn't enabled by default in PostGraphile.
+it before you ship anything!**
 
 ## Changes:
 
@@ -32,43 +32,9 @@ create table beverages (
 - `Beverage.companyByCompanyId` 👉 `Beverage.company`
 - `Beverage.companyByDistributorId` 👉 `Beverage.distributor`
 - `Company.beveragesByCompanyId` 👉 `Company.beverages` (because the `company_id` column follows the `[table_name]_id` naming convention)
-- All update mutations now accept `patch` instead of `companyPatch` /
-  `beveragePatch` (disable via `pgSimplifyPatch = false`)
-- If you are using `pgSimpleCollections = "only"` then you can set
-  `pgOmitListSuffix = true` to omit the `List` suffix
+- All update mutations now accept `patch` instead of `companyPatch` / `beveragePatch`
+- All lists must either be a simple list or a connection. Not both.
 - Fields where the singular and plural are the same and a distinct plural is required are force-pluralised ("fishes") to avoid conflicts (e.g. `singularize("fish") === pluralize("fish")`).
-
-Note: `Company.beveragesByDistributorId` will remain, because `distributor_id` does not follow the `[table_name]_id` naming convention, but you could rename this yourself with a smart comment:
-
-```sql
-comment on constraint "beverages_distributor_id_fkey" on "beverages" is
-  E'@foreignFieldName distributedBeverages';
-```
-
-or with a custom inflector:
-
-```js
-module.exports = makeAddInflectorsPlugin(
-  {
-    getOppositeBaseName(baseName) {
-      return (
-        {
-          // These are the default opposites
-          parent: "child",
-          child: "parent",
-          author: "authored",
-          editor: "edited",
-          reviewer: "reviewed",
-
-          // 👇 Add/customise this line:
-          distributor: "distributed",
-        }[baseName] || null
-      );
-    },
-  },
-  true
-);
-```
 
 ## Installation:
 
@@ -93,33 +59,13 @@ postgraphile --append-plugins postgraphile-shopify-inflector
 Library:
 
 ```js
-const PgShopifyInflectorPlugin = require("@graphile-contrib/pg-shopify-inflector");
+const PgShopifyInflectorPlugin = require("postgraphile-shopify-inflector");
 
 // ...
 
 app.use(
   postgraphile(process.env.AUTH_DATABASE_URL, "app_public", {
     appendPlugins: [PgShopifyInflectorPlugin],
-
-    graphileBuildOptions: {
-      /*
-       * Uncomment if you want simple collections to lose the 'List' suffix
-       * (and connections to gain a 'Connection' suffix).
-       */
-      //pgOmitListSuffix: true,
-      /*
-       * Uncomment if you want 'userPatch' instead of 'patch' in update
-       * mutations.
-       */
-      //pgShopifyPatch: false,
-      /*
-       * Uncomment if you want primary key queries and mutations to have
-       * `ById` (or similar) suffix; and the `nodeId` queries/mutations
-       * to lose their `ByNodeId` suffix.
-       */
-      // pgShortPk: true,
-    },
-    // ... other settings ...
   })
 );
 ```

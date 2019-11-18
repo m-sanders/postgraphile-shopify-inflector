@@ -167,23 +167,6 @@ type Company implements Node {
   ): BeveragesConnection!
 
   """Reads and enables pagination through a set of `Beverage`."""
-  beveragesByCompanyIdList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Beverage`."""
-    orderBy: [BeveragesOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BeverageCondition
-  ): [Beverage!]!
-
-  """Reads and enables pagination through a set of `Beverage`."""
   distributedBeverages(
     """Only read the first `n` values of the set."""
     first: Int
@@ -211,23 +194,6 @@ type Company implements Node {
     """
     condition: BeverageCondition
   ): BeveragesConnection!
-
-  """Reads and enables pagination through a set of `Beverage`."""
-  distributedBeveragesList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Beverage`."""
-    orderBy: [BeveragesOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BeverageCondition
-  ): [Beverage!]!
 }
 
 """
@@ -431,12 +397,6 @@ type CreatePondPayload {
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
-
-  """An edge for our `Pond`. May be used by Relay 1."""
-  pondEdge(
-    """The method to use when ordering `Pond`."""
-    orderBy: [PondsOrderBy!] = PRIMARY_KEY_ASC
-  ): PondsEdge
 }
 
 """A location in a connection that can be used for resuming pagination."""
@@ -683,12 +643,6 @@ type DeletePondPayload {
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
-
-  """An edge for our `Pond`. May be used by Relay 1."""
-  pondEdge(
-    """The method to use when ordering `Pond`."""
-    orderBy: [PondsOrderBy!] = PRIMARY_KEY_ASC
-  ): PondsEdge
 }
 
 type Fish implements Node {
@@ -1111,23 +1065,6 @@ type Pond implements Node {
     """
     condition: FishCondition
   ): FishConnection!
-
-  """Reads and enables pagination through a set of `Fish`."""
-  fishByPondIdList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Fish`."""
-    orderBy: [FishOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FishCondition
-  ): [Fish!]!
 }
 
 """
@@ -1153,32 +1090,6 @@ Represents an update to a `Pond`. Fields that are set will be updated.
 input PondPatch {
   id: Int
   name: String
-}
-
-"""A connection to a list of `Pond` values."""
-type PondsConnection {
-  """A list of `Pond` objects."""
-  nodes: [Pond]!
-
-  """
-  A list of edges which contains the `Pond` and cursor to aid in pagination.
-  """
-  edges: [PondsEdge!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Pond` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Pond` edge in the connection."""
-type PondsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Pond` at the end of the edge."""
-  node: Pond
 }
 
 """Methods to use when ordering `Pond`."""
@@ -1240,23 +1151,6 @@ type Query implements Node {
     condition: BeverageCondition
   ): BeveragesConnection
 
-  """Reads a set of `Beverage`."""
-  allBeveragesList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Beverage`."""
-    orderBy: [BeveragesOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BeverageCondition
-  ): [Beverage!]
-
   """Reads and enables pagination through a set of `Company`."""
   allCompanies(
     """Only read the first `n` values of the set."""
@@ -1285,23 +1179,6 @@ type Query implements Node {
     """
     condition: CompanyCondition
   ): CompaniesConnection
-
-  """Reads a set of `Company`."""
-  allCompaniesList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Company`."""
-    orderBy: [CompaniesOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: CompanyCondition
-  ): [Company!]
 
   """Reads and enables pagination through a set of `Fish`."""
   allFish(
@@ -1332,23 +1209,6 @@ type Query implements Node {
     condition: FishCondition
   ): FishConnection
 
-  """Reads a set of `Fish`."""
-  allFishList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `Fish`."""
-    orderBy: [FishOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FishCondition
-  ): [Fish!]
-
   """Reads and enables pagination through a set of `FooGenera`."""
   allFooGeneras(
     """Only read the first `n` values of the set."""
@@ -1377,52 +1237,6 @@ type Query implements Node {
     """
     condition: FooGeneraCondition
   ): FooGenerasConnection
-
-  """Reads a set of `FooGenera`."""
-  allFooGenerasList(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Skip the first `n` values."""
-    offset: Int
-
-    """The method to use when ordering `FooGenera`."""
-    orderBy: [FooGenerasOrderBy!]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FooGeneraCondition
-  ): [FooGenera!]
-
-  """Reads and enables pagination through a set of `Pond`."""
-  allPonds(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `Pond`."""
-    orderBy: [PondsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: PondCondition
-  ): PondsConnection
 
   """Reads a set of `Pond`."""
   allPondsList(
@@ -1765,10 +1579,4 @@ type UpdatePondPayload {
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
-
-  """An edge for our `Pond`. May be used by Relay 1."""
-  pondEdge(
-    """The method to use when ordering `Pond`."""
-    orderBy: [PondsOrderBy!] = PRIMARY_KEY_ASC
-  ): PondsEdge
 }

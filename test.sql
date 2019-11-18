@@ -7,6 +7,8 @@ create table ponds(
   name text not null
 );
 
+comment on table ponds is E'@simpleCollections only';
+
 create table fish(
   id serial primary key,
   pond_id int not null references ponds,

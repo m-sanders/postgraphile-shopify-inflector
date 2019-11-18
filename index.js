@@ -18,38 +18,7 @@ function fixChangePlural(fn) {
   };
 }
 
-function PgShopifyInflectorPlugin(
-  builder,
-  {
-    pgSimpleCollections,
-    pgOmitListSuffix,
-    pgShopifyPatch = true,
-    pgShopifyAllRows = true,
-    pgShortPk = true,
-    nodeIdFieldName = "nodeId",
-  }
-) {
-  const hasConnections = pgSimpleCollections !== "only";
-  const hasSimpleCollections =
-    pgSimpleCollections === "only" || pgSimpleCollections === "both";
-
-  if (
-    hasSimpleCollections &&
-    !hasConnections &&
-    pgOmitListSuffix !== true &&
-    pgOmitListSuffix !== false
-  ) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "You can simplify the inflector further by adding `{graphileBuildOptions: {pgOmitListSuffix: true}}` to the options passed to PostGraphile, however be aware that doing so will mean that later enabling relay connections will be a breaking change. To dismiss this message, set `pgOmitListSuffix` to false instead."
-    );
-  }
-
-  const connectionSuffix = pgOmitListSuffix ? "-connection" : "";
-  const ConnectionSuffix = pgOmitListSuffix ? "Connection" : "";
-  const listSuffix = pgOmitListSuffix ? "" : "-list";
-  const ListSuffix = pgOmitListSuffix ? "" : "List";
-
+function PgShopifyInflectorPlugin(builder, { nodeIdFieldName = "nodeId" }) {
   builder.hook("inflection", oldInflection => {
     return {
       ...oldInflection,
@@ -141,43 +110,31 @@ function PgShopifyInflectorPlugin(
         return null;
       },
 
-      ...(pgShopifyPatch
-        ? {
-            patchField() {
-              return "patch";
-            },
-          }
-        : null),
+      patchField() {
+        return "patch";
+      },
 
-      ...(pgShopifyAllRows
-        ? {
-            allRows(table) {
-              return this.camelCase(
-                this.distinctPluralize(this._singularizedTableName(table)) +
-                  connectionSuffix
-              );
-            },
-            allRowsSimple(table) {
-              return this.camelCase(
-                this.distinctPluralize(this._singularizedTableName(table)) +
-                  listSuffix
-              );
-            },
-          }
-        : null),
+      allRows(table) {
+        return this.camelCase(
+          this.distinctPluralize(this._singularizedTableName(table))
+        );
+      },
+      allRowsSimple(table) {
+        return this.camelCase(
+          this.distinctPluralize(this._singularizedTableName(table))
+        );
+      },
 
       computedColumn(pseudoColumnName, proc, _table) {
         return proc.tags.fieldName
-          ? proc.tags.fieldName + (proc.returnsSet ? ConnectionSuffix : "")
-          : this.camelCase(
-              pseudoColumnName + (proc.returnsSet ? connectionSuffix : "")
-            );
+          ? proc.tags.fieldName
+          : this.camelCase(pseudoColumnName);
       },
 
       computedColumnList(pseudoColumnName, proc, _table) {
         return proc.tags.fieldName
-          ? proc.tags.fieldName + ListSuffix
-          : this.camelCase(pseudoColumnName + listSuffix);
+          ? proc.tags.fieldName
+          : this.camelCase(pseudoColumnName);
       },
 
       singleRelationByKeys(detailedKeys, table, _foreignTable, constraint) {
@@ -252,7 +209,7 @@ function PgShopifyInflectorPlugin(
           if (constraint.tags.foreignSimpleFieldName) {
             return constraint.tags.foreignFieldName;
           } else {
-            return constraint.tags.foreignFieldName + ConnectionSuffix;
+            return constraint.tags.foreignFieldName;
           }
         }
         const base = this._manyRelationByKeysBase(
@@ -262,15 +219,13 @@ function PgShopifyInflectorPlugin(
           constraint
         );
         if (base) {
-          return base + ConnectionSuffix;
+          return base;
         }
-        return (
-          oldInflection.manyRelationByKeys(
-            detailedKeys,
-            table,
-            foreignTable,
-            constraint
-          ) + ConnectionSuffix
+        return oldInflection.manyRelationByKeys(
+          detailedKeys,
+          table,
+          foreignTable,
+          constraint
         );
       },
 
@@ -279,7 +234,7 @@ function PgShopifyInflectorPlugin(
           return constraint.tags.foreignSimpleFieldName;
         }
         if (constraint.tags.foreignFieldName) {
-          return constraint.tags.foreignFieldName + ListSuffix;
+          return constraint.tags.foreignFieldName;
         }
         const base = this._manyRelationByKeysBase(
           detailedKeys,
@@ -288,159 +243,159 @@ function PgShopifyInflectorPlugin(
           constraint
         );
         if (base) {
-          return base + ListSuffix;
+          return base;
         }
-        return (
-          oldInflection.manyRelationByKeys(
-            detailedKeys,
-            table,
-            foreignTable,
-            constraint
-          ) + ListSuffix
+        return oldInflection.manyRelationByKeys(
+          detailedKeys,
+          table,
+          foreignTable,
+          constraint
         );
       },
 
       functionQueryName(proc) {
-        return this.camelCase(
-          this._functionName(proc) + (proc.returnsSet ? connectionSuffix : "")
-        );
+        return this.camelCase(this._functionName(proc));
       },
       functionQueryNameList(proc) {
-        return this.camelCase(this._functionName(proc) + listSuffix);
+        return this.camelCase(this._functionName(proc));
       },
 
-      ...(pgShortPk
-        ? {
-            tableNode(table) {
-              return this.camelCase(
-                `${this._singularizedTableName(table)}-by-${nodeIdFieldName}`
-              );
-            },
-            rowByUniqueKeys(detailedKeys, table, constraint) {
-              if (constraint.tags.fieldName) {
-                return constraint.tags.fieldName;
-              }
-              if (constraint.type === "p") {
-                // Primary key, shorten!
-                return this.camelCase(this._singularizedTableName(table));
-              } else {
-                return this.camelCase(
-                  `${this._singularizedTableName(table)}-by-${detailedKeys
-                    .map(key => this.column(key))
-                    .join("-and-")}`
-                );
-              }
-            },
+      tableNode(table) {
+        return this.camelCase(
+          `${this._singularizedTableName(table)}-by-${nodeIdFieldName}`
+        );
+      },
+      rowByUniqueKeys(detailedKeys, table, constraint) {
+        if (constraint.tags.fieldName) {
+          return constraint.tags.fieldName;
+        }
+        if (constraint.type === "p") {
+          // Primary key, shorten!
+          return this.camelCase(this._singularizedTableName(table));
+        } else {
+          return this.camelCase(
+            `${this._singularizedTableName(table)}-by-${detailedKeys
+              .map(key => this.column(key))
+              .join("-and-")}`
+          );
+        }
+      },
 
-            updateByKeys(detailedKeys, table, constraint) {
-              if (constraint.tags.updateFieldName) {
-                return constraint.tags.updateFieldName;
-              }
-              if (constraint.type === "p") {
-                return this.camelCase(
-                  `update-${this._singularizedTableName(table)}`
-                );
-              } else {
-                return this.camelCase(
-                  `update-${this._singularizedTableName(
-                    table
-                  )}-by-${detailedKeys
-                    .map(key => this.column(key))
-                    .join("-and-")}`
-                );
-              }
-            },
-            deleteByKeys(detailedKeys, table, constraint) {
-              if (constraint.tags.deleteFieldName) {
-                return constraint.tags.deleteFieldName;
-              }
-              if (constraint.type === "p") {
-                // Primary key, shorten!
-                return this.camelCase(
-                  `delete-${this._singularizedTableName(table)}`
-                );
-              } else {
-                return this.camelCase(
-                  `delete-${this._singularizedTableName(
-                    table
-                  )}-by-${detailedKeys
-                    .map(key => this.column(key))
-                    .join("-and-")}`
-                );
-              }
-            },
-            updateByKeysInputType(detailedKeys, table, constraint) {
-              if (constraint.tags.updateFieldName) {
-                return this.upperCamelCase(
-                  `${constraint.tags.updateFieldName}-input`
-                );
-              }
-              if (constraint.type === "p") {
-                // Primary key, shorten!
-                return this.upperCamelCase(
-                  `update-${this._singularizedTableName(table)}-input`
-                );
-              } else {
-                return this.upperCamelCase(
-                  `update-${this._singularizedTableName(
-                    table
-                  )}-by-${detailedKeys
-                    .map(key => this.column(key))
-                    .join("-and-")}-input`
-                );
-              }
-            },
-            deleteByKeysInputType(detailedKeys, table, constraint) {
-              if (constraint.tags.deleteFieldName) {
-                return this.upperCamelCase(
-                  `${constraint.tags.deleteFieldName}-input`
-                );
-              }
-              if (constraint.type === "p") {
-                // Primary key, shorten!
-                return this.upperCamelCase(
-                  `delete-${this._singularizedTableName(table)}-input`
-                );
-              } else {
-                return this.upperCamelCase(
-                  `delete-${this._singularizedTableName(
-                    table
-                  )}-by-${detailedKeys
-                    .map(key => this.column(key))
-                    .join("-and-")}-input`
-                );
-              }
-            },
-            updateNode(table) {
-              return this.camelCase(
-                `update-${this._singularizedTableName(
-                  table
-                )}-by-${nodeIdFieldName}`
-              );
-            },
-            deleteNode(table) {
-              return this.camelCase(
-                `delete-${this._singularizedTableName(
-                  table
-                )}-by-${nodeIdFieldName}`
-              );
-            },
-            updateNodeInputType(table) {
-              return this.upperCamelCase(
-                `update-${this._singularizedTableName(
-                  table
-                )}-by-${nodeIdFieldName}-input`
-              );
-            },
-            deleteNodeInputType(table) {
-              return this.upperCamelCase(
-                `delete-${this._singularizedTableName(
-                  table
-                )}-by-${nodeIdFieldName}-input`
-              );
-            },
-          }
-        : null),
+      createField(table) {
+        return this.camelCase(`${this._singularizedTableName(table)}-create`);
+      },
+
+      createInputType(table) {
+        return this.upperCamelCase(
+          `${this._singularizedTableName(table)}-create-input`
+        );
+      },
+
+      createPayloadType(table) {
+        return this.upperCamelCase(
+          `${this._singularizedTableName(table)}-create-payload`
+        );
+      },
+
+      updateByKeys(detailedKeys, table, constraint) {
+        if (constraint.tags.updateFieldName) {
+          return constraint.tags.updateFieldName;
+        }
+        if (constraint.type === "p") {
+          return this.camelCase(`${this._singularizedTableName(table)}-update`);
+        } else {
+          return this.camelCase(
+            `${this._singularizedTableName(table)}-update-by-${detailedKeys
+              .map(key => this.column(key))
+              .join("-and-")}`
+          );
+        }
+      },
+
+      deleteByKeys(detailedKeys, table, constraint) {
+        if (constraint.tags.deleteFieldName) {
+          return constraint.tags.deleteFieldName;
+        }
+        if (constraint.type === "p") {
+          // Primary key, shorten!
+          return this.camelCase(`${this._singularizedTableName(table)}-delete`);
+        } else {
+          return this.camelCase(
+            `${this._singularizedTableName(table)}-delete-by-${detailedKeys
+              .map(key => this.column(key))
+              .join("-and-")}`
+          );
+        }
+      },
+
+      updateByKeysInputType(detailedKeys, table, constraint) {
+        if (constraint.tags.updateFieldName) {
+          return this.upperCamelCase(
+            `${constraint.tags.updateFieldName}-input`
+          );
+        }
+
+        if (constraint.type === "p") {
+          // Primary key, shorten!
+          return this.upperCamelCase(
+            `${this._singularizedTableName(table)}-update-input`
+          );
+        } else {
+          return this.upperCamelCase(
+            `${this._singularizedTableName(table)}-update-by-${detailedKeys
+              .map(key => this.column(key))
+              .join("-and-")}-input`
+          );
+        }
+      },
+
+      deleteByKeysInputType(detailedKeys, table, constraint) {
+        if (constraint.tags.deleteFieldName) {
+          return this.upperCamelCase(
+            `${constraint.tags.deleteFieldName}-input`
+          );
+        }
+        if (constraint.type === "p") {
+          // Primary key, shorten!
+          return this.upperCamelCase(
+            `${this._singularizedTableName(table)}-delete-input`
+          );
+        } else {
+          return this.upperCamelCase(
+            `${this._singularizedTableName(table)}-delete-by-${detailedKeys
+              .map(key => this.column(key))
+              .join("-and-")}-input`
+          );
+        }
+      },
+
+      updateNode(table) {
+        return this.camelCase(
+          `${this._singularizedTableName(table)}-update-by-${nodeIdFieldName}`
+        );
+      },
+
+      deleteNode(table) {
+        return this.camelCase(
+          `${this._singularizedTableName(table)}-delete-by-${nodeIdFieldName}`
+        );
+      },
+
+      updateNodeInputType(table) {
+        return this.upperCamelCase(
+          `${this._singularizedTableName(
+            table
+          )}-update-by-${nodeIdFieldName}-input`
+        );
+      },
+
+      deleteNodeInputType(table) {
+        return this.upperCamelCase(
+          `${this._singularizedTableName(
+            table
+          )}-delete-by-${nodeIdFieldName}-input`
+        );
+      },
     };
   });
 }

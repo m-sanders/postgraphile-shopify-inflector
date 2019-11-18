@@ -18,13 +18,13 @@ function fixChangePlural(fn) {
   };
 }
 
-function PgSimplifyInflectorPlugin(
+function PgShopifyInflectorPlugin(
   builder,
   {
     pgSimpleCollections,
     pgOmitListSuffix,
-    pgSimplifyPatch = true,
-    pgSimplifyAllRows = true,
+    pgShopifyPatch = true,
+    pgShopifyAllRows = true,
     pgShortPk = true,
     nodeIdFieldName = "nodeId",
   }
@@ -141,7 +141,7 @@ function PgSimplifyInflectorPlugin(
         return null;
       },
 
-      ...(pgSimplifyPatch
+      ...(pgShopifyPatch
         ? {
             patchField() {
               return "patch";
@@ -149,7 +149,7 @@ function PgSimplifyInflectorPlugin(
           }
         : null),
 
-      ...(pgSimplifyAllRows
+      ...(pgShopifyAllRows
         ? {
             allRows(table) {
               return this.camelCase(
@@ -445,7 +445,7 @@ function PgSimplifyInflectorPlugin(
   });
 }
 
-module.exports = PgSimplifyInflectorPlugin;
+module.exports = PgShopifyInflectorPlugin;
 // Hacks for TypeScript/Babel import
-module.exports.default = PgSimplifyInflectorPlugin;
+module.exports.default = PgShopifyInflectorPlugin;
 Object.defineProperty(module.exports, "__esModule", { value: true });

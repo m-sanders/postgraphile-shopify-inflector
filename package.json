@@ -1,7 +1,7 @@
 {
-  "name": "@graphile-contrib/pg-simplify-inflector",
-  "version": "5.0.0-beta.1",
-  "description": "Simplifies the graphile-build-pg inflector to trim the `ByFooIdAndBarId` from relations",
+  "name": "postgraphile-shopify-inflector",
+  "version": "1.0.0",
+  "description": "Simplifies the graphile-build-pg inflector to follow Shopify style naming conventions",
   "main": "index.js",
   "scripts": {
     "postgraphile": "postgraphile --append-plugins \"$(pwd)/index.js\"",
@@ -9,24 +9,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/graphile-contrib/pg-simplify-inflector.git"
+    "url": "git+https://github.com/m-sanders/postgraphile-shopify-inflector.git"
   },
   "keywords": [
     "graphile",
     "postgraphile",
     "plugin",
     "simple",
-    "simplify",
+    "shopify",
     "inflection",
     "inflector",
     "pg"
   ],
-  "author": "Benjie Gillam <code@benjiegillam.com>",
+  "author": "Martin Sanders <m_sanders@outlook.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/graphile-contrib/pg-simplify-inflector/issues"
+    "url": "https://github.com/m-sanders/postgraphile-shopify-inflector/issues"
   },
-  "homepage": "https://github.com/graphile-contrib/pg-simplify-inflector#readme",
+  "homepage": "https://github.com/m-sanders/postgraphile-shopify-inflector#readme",
   "files": [
     "index.js",
     "index.d.ts"

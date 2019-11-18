@@ -1,22 +1,14 @@
-# @graphile-contrib/pg-simplify-inflector
+# postgraphile-shopify-inflector
 
 This plugin simplifies field names in the PostGraphile schema; e.g.
 `allUsers` becomes simply `users`, `User.postsByAuthorId` becomes simply
 `User.posts`, and `Post.userByAuthorId` becomes simply `Post.author`.
 
+Mutations follow the Shopify style naming conventions. e.g. `createUser` becomes
+`userCreate`.
+
 **Adding this plugin to your schema is almost certainly a breaking change, so do
 it before you ship anything!** This is the primary reason this isn't enabled by default in PostGraphile.
-
-_This plugin is recommended for all PostGraphile users._
-
-## Customising
-
-This plugin is implemented as a single JS file that does not need to be
-compiled at all - you can simply copy it into your project and customise it as
-you see fit.
-
-Alternatively, you can [write your own inflection
-plugin](https://www.graphile.org/postgraphile/inflection/).
 
 ## Changes:
 
@@ -35,7 +27,7 @@ create table beverages (
 );
 ```
 
-- `Query.allCompanies` 👉 `Query.companies` (disable via `pgSimplifyAllRows = false`)
+- `Query.allCompanies` 👉 `Query.companies`
 - `Query.allBeverages` 👉 `Query.beverages`
 - `Beverage.companyByCompanyId` 👉 `Beverage.company`
 - `Beverage.companyByDistributorId` 👉 `Beverage.distributor`
@@ -81,13 +73,13 @@ module.exports = makeAddInflectorsPlugin(
 ## Installation:
 
 ```bash
-yarn add @graphile-contrib/pg-simplify-inflector
+yarn add postgraphile-shopify-inflector
 ```
 
 or
 
 ```bash
-npm install --save @graphile-contrib/pg-simplify-inflector
+npm install --save postgraphile-shopify-inflector
 ```
 
 ## Usage:
@@ -95,21 +87,20 @@ npm install --save @graphile-contrib/pg-simplify-inflector
 CLI:
 
 ```bash
-postgraphile --append-plugins @graphile-contrib/pg-simplify-inflector
+postgraphile --append-plugins postgraphile-shopify-inflector
 ```
 
 Library:
 
 ```js
-const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
+const PgShopifyInflectorPlugin = require("@graphile-contrib/pg-shopify-inflector");
 
 // ...
 
 app.use(
   postgraphile(process.env.AUTH_DATABASE_URL, "app_public", {
-    appendPlugins: [PgSimplifyInflectorPlugin],
+    appendPlugins: [PgShopifyInflectorPlugin],
 
-    // Optional customisation
     graphileBuildOptions: {
       /*
        * Uncomment if you want simple collections to lose the 'List' suffix
@@ -120,11 +111,7 @@ app.use(
        * Uncomment if you want 'userPatch' instead of 'patch' in update
        * mutations.
        */
-      //pgSimplifyPatch: false,
-      /*
-       * Uncomment if you want 'allUsers' instead of 'users' at root level.
-       */
-      //pgSimplifyAllRows: false,
+      //pgShopifyPatch: false,
       /*
        * Uncomment if you want primary key queries and mutations to have
        * `ById` (or similar) suffix; and the `nodeId` queries/mutations
